@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+	<link href="https://fonts.googleapis.com/css?family=Lobster|Quicksand" rel="stylesheet">
+
+	<title>Score your sentence</title>
+
+	<style type="text/css">
+		body,html{
+		    height:100%;
+			font-family: 'Quicksand', sans-serif;
+		}
+		input:focus {
+		    border-bottom: 1px solid #007bff !important;
+		    -webkit-box-shadow: 0 1px 0 0 #007bff !important;
+		    box-shadow: 0 1px 0 0 #007bff !important;
+		}
+		input:focus+label {
+			color: #007bff !important;
+		}
+		h2 {
+			font-family: 'Lobster', cursive;
+		}
+		#sentence-form {
+			/*margin-top: 1.5em;*/
+		}
+		#data {
+			font-size: 3em;
+		    background: #007bff;
+		    border-radius: 60px;
+		    text-align: center;
+		    color: #fff;
+		}
+		#data.negative {
+		    background: #f44336;
+		}
+		#loader {
+			display: none;
+			position: absolute;
+		    margin-left: auto;
+		    margin-right: auto;
+		    left: 0;
+		    right: 0;
+		    top: 13px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container h-100">
+	  	<div class="row h-100 justify-content-center align-items-center">
+	  		<div class="col-12">
+	  			<div class="row">
+			  		<div class="col-12 mb-1">
+			  			<h2>Score your sentence</h2>
+			  			<p>Enter your sentence to discover your score!</p>
+			  		</div>
+					<div class="col-12 col-sm-8">
+						<form id="sentence-form">
+							<div class="input-field">
+								<input type="text" name="sentence">
+								<label for="sentence">Write your sentence</label>
+							</div>
+						</form>
+					</div>
+					<div class="col-12 col-sm-4">
+						<p id="data">
+							<span id="data-content">&zwnj;</span>
+							<svg version="1.1" id="loader" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+						     width="40px" height="40px" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve">
+						  	<path fill="#fff" d="M25.251,6.461c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615V6.461z">
+						    <animateTransform attributeType="xml"
+						      attributeName="transform"
+						      type="rotate"
+						      from="0 25 25"
+						      to="360 25 25"
+						      dur="0.6s"
+						      repeatCount="indefinite"/>
+						    </path>
+						  	</svg>
+						</p>
+					</div>
+	  			</div>
+	  		</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		var timeout = null;
+		var currentRequest = null;
+
+		$('#sentence-form input').on('keyup', function(){
+			clearTimeout(timeout);
+			$('#data-content').html('&zwnj;');
+			$("#loader").css("display", "block");
+
+		    timeout = setTimeout(function () {
+		        currentRequest = jQuery.ajax({
+		            type: 'POST',
+		            data: $('#sentence-form').serialize(),
+		            url: 'score',
+		            beforeSend : function()    {           
+		                if(currentRequest != null) {
+		                    currentRequest.abort();
+		                }
+		            },
+		            success: function(data) {
+		            	$("#loader").css("display", "none");
+
+		            	if (parseInt(data.score) < 0) {
+		            		$('#data').addClass('negative');
+		            	} else {
+		            		$('#data').removeClass('negative');
+		            	}
+		                $('#data-content').html(data.score);
+		            }
+		        });
+		    }, 500);
+		});
+	</script>
+</body>
+</html>
