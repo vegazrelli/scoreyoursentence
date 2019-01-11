@@ -82,6 +82,7 @@ var self = module.exports = {
                     score += result;
                     counter +=1 
 
+                    // All words are processed
                     if (counter == words.length) {
                         _callback(score);
                     }
@@ -92,7 +93,8 @@ var self = module.exports = {
         }
     },
     getSentenceScore: function (req, res) {
-        var sentence = req.body.sentence;
+        // Let's clean the sentence: lower case, and without punctuation
+        var sentence = req.body.sentence.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
 
         self.sentenceScore(sentence, function(result) {
             res.json({score: result});
